@@ -101,7 +101,7 @@ Step 4  →  Admin triggers verification — all hashes are recomputed
 
 9. Installation & Setup
 Step 1 — Clone the repository:
-bashgit clone https://github.com/yourusername/tamper-proof-chat-streamlit.git
+bashgit clone https://github.com/Priyanshu-rajsingh/tamper-proof-chat-streamlit.git
 cd tamper-proof-chat-streamlit
 Step 2 — Install dependencies:
 bashpip install -r requirements.txt
