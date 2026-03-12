@@ -77,12 +77,12 @@ def clear_logs():
         json.dump([], f)
 
 
-def simulate_tamper():
+def tamper_log(index, new_message):
 
     logs = load_logs()
 
-    if len(logs) > 0:
+    if index < len(logs):
 
-        logs[0]["message"] = "⚠️ HACKED MESSAGE"
+        logs[index]["message"] = new_message
 
         save_logs(logs)
