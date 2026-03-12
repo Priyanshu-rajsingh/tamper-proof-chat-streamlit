@@ -75,3 +75,14 @@ def verify_logs():
 def clear_logs():
     with open(LOG_FILE, "w") as f:
         json.dump([], f)
+
+
+def simulate_tamper():
+
+    logs = load_logs()
+
+    if len(logs) > 0:
+
+        logs[0]["message"] = "⚠️ HACKED MESSAGE"
+
+        save_logs(logs)
