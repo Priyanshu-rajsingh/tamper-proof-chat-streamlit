@@ -27,7 +27,7 @@ Full explanation of the system architecture, mathematics, and implementation:
 
 **1. Clone the repository:**
 ```bash
-git clone https://github.com/yourusername/tamper-proof-chat-streamlit.git
+git clone https://github.com/Priyanshu-rajsingh/tamper-proof-chat-streamlit.git
 ```
 
 **2. Navigate to the project folder:**
