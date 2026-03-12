@@ -52,9 +52,11 @@ if page == "Admin Panel":
 
     logs = logchain.load_logs()
 
+    st.subheader("View Logs")
+
     for i, log in enumerate(logs):
 
-        with st.expander(f"Log Entry {i+1}"):
+        with st.expander(f"Log Entry {i}"):
 
             st.write("Message:", log["message"])
             st.write("Timestamp:", log["timestamp"])
@@ -63,10 +65,29 @@ if page == "Admin Panel":
 
     st.divider()
 
-    if st.button("Reset Logs"):
-        logchain.clear_logs()
-        st.success("Logs Reset")
+    st.subheader("Simulate Log Tampering")
 
-    if st.button("Simulate Hacker Tampering"):
-        logchain.simulate_tamper()
-        st.warning("⚠️ Hacker Tampered With Logs!")
+    if len(logs) > 0:
+
+        tamper_index = st.number_input(
+            "Select Log Index",
+            min_value=0,
+            max_value=len(logs)-1,
+            step=1
+        )
+
+        new_message = st.text_input("Enter Tampered Message")
+
+        if st.button("Tamper Log"):
+
+            logchain.tamper_log(int(tamper_index), new_message)
+
+            st.warning("Log has been tampered!")
+
+    st.divider()
+
+    if st.button("Reset Logs"):
+
+        logchain.clear_logs()
+
+        st.success("Logs Reset")
