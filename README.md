@@ -1,493 +1,141 @@
-# tamper-proof-chat-app
 
-🔐 Tamper-Proof Chat Logging System using Hash Chaining
-
-A secure chat logging system that demonstrates tamper-proof logging using cryptographic hash chaining.
-This project simulates a secure audit log system where any unauthorized modification of logs is automatically detected.
-
-The application is implemented using Python + Streamlit and is designed as an educational demonstration of integrity protection in cybersecurity systems.
+🔐 Tamper-Proof Chat Logging System
+A secure chat logging system that demonstrates tamper-proof logging using cryptographic hash chaining. This project simulates a secure audit log where any unauthorized modification is automatically detected — serving as an educational demonstration of integrity protection in cybersecurity systems.
+Tech Stack: Python · Streamlit · SHA-256 · JSON
 
 📚 Table of Contents
 
 Introduction
-
 Problem Statement
-
 Security Objectives
-
 System Architecture
-
 Cryptographic Background
-
-Mathematical Model of Hash Chaining
-
-Tampering Detection Mechanism
-
+Mathematical Model
+Tampering Detection
 Application Workflow
-
-Installation and Setup
-
+Installation & Setup
 Running the Project
-
 Demonstration Scenario
-
 Real-World Applications
-
 Future Improvements
 
-1️⃣ Introduction
 
-Modern information systems rely heavily on log files to record activities such as:
+1. Introduction
+Modern information systems rely heavily on log files to record activities such as user logins, financial transactions, system events, and security alerts. However, attackers who gain system access may attempt to modify these logs to conceal their actions.
+This project demonstrates a tamper-proof logging mechanism using cryptographic hash chaining — a technique similar to those used in:
 
-user logins
+Blockchain systems
+Secure audit trails
+Financial record systems
+Cybersecurity monitoring platforms
 
-financial transactions
 
-system events
+2. Problem Statement
+Traditional logging systems store records sequentially with no built-in integrity protection:
+Log1 → Log2 → Log3 → Log4
+An attacker can easily modify these records without detection. For example:
+Log EntryOriginalUserA: Login successfulTamperedUserA: No activity
+There is no mechanism to detect such changes in a conventional logging system.
 
-security alerts
+3. Security Objectives
+This system is designed to achieve three core security properties:
+PropertyDescriptionIntegrityLog entries cannot be modified without detectionTraceabilityEvery log entry is cryptographically linked to the previous oneTamper DetectionAny modification invalidates the entire hash chain
 
-However, attackers who gain system access may attempt to modify logs to hide their actions.
-
-Therefore, it is critical to ensure log integrity.
-
-This project demonstrates a tamper-proof logging mechanism using cryptographic hash chaining, similar to techniques used in:
-
-blockchain systems
-
-secure audit trails
-
-financial record systems
-
-cybersecurity monitoring platforms
-
-2️⃣ Problem Statement
-
-Traditional logging systems store records sequentially:
-
-Log1
-Log2
-Log3
-Log4
-
-An attacker can easily modify these records.
-
-Example attack:
-
-Original Log
-UserA: Login successful
-
-Tampered Log
-UserA: No activity
-
-There is no built-in mechanism to detect such changes.
-
-3️⃣ Security Objectives
-
-This system aims to achieve the following security properties:
-
-Integrity
-
-Ensure that log entries cannot be modified without detection.
-
-Traceability
-
-Every log entry is linked to the previous log.
-
-Tamper Detection
-
-Any modification of a log entry will invalidate the entire hash chain.
-
-4️⃣ System Architecture
+4. System Architecture
 Users
-  │
-  │ Chat Messages
+  │  (Chat Messages)
   ▼
 Streamlit Web Application
   │
-  │
+  ▼
 Hash Chain Logging System
   │
   ▼
-logs.json (Persistent Storage)
+logs.json  (Persistent Storage)
   │
   ▼
 Admin Verification Panel
+The admin panel allows verification of the full log chain's integrity at any time.
 
-The admin panel verifies the integrity of the log chain.
+5. Cryptographic Background
+This project uses the SHA-256 cryptographic hash function, which has the following properties:
+PropertyDescriptionDeterministicSame input always produces the same outputCollision ResistantExtremely difficult to produce the same hash from two different inputsPreimage ResistantCannot reconstruct the original input from its hashAvalanche EffectA small change in input produces a completely different hash
+Example — even a tiny change produces a completely different hash:
+Input:  "Hello"
+SHA256: 185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969
 
-5️⃣ Cryptographic Background
+Input:  "Hello!"
+SHA256: 334d016f755cd6dc58c53a86e183882f8ec14f52fb05345887c8a5edd42c87b7
 
-This project uses the SHA-256 cryptographic hash function.
-
-SHA-256 Properties
-Property	Description
-Deterministic	Same input produces same output
-Collision Resistant	Extremely difficult to produce same hash from different inputs
-Preimage Resistant	Cannot reconstruct input from hash
-Avalanche Effect	Small change in input produces large change in hash
-
-Example:
-
-Input
-Hello
-
-SHA256
-185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969
-
-Even a small change:
-
-Hello!
-
-Produces a completely different hash.
-
-6️⃣ Mathematical Model of Hash Chaining
-
+6. Mathematical Model of Hash Chaining
 Let:
 
-𝑀
-𝑖
-M
-i
-	​
+Mᵢ = the message of log entry i
+Tᵢ = the timestamp of log entry i
+Hᵢ₋₁ = the hash of the previous log entry
 
- be the message of log entry 
-𝑖
-i
+The hash of each log entry is defined as:
+Hᵢ = SHA256(Mᵢ || Tᵢ || Hᵢ₋₁)
+where || denotes concatenation. The first entry uses 0 as its previous hash:
+H₀ = SHA256(M₀ || T₀ || 0)
+H₁ = SHA256(M₁ || T₁ || H₀)
+H₂ = SHA256(M₂ || T₂ || H₁)
+This creates a chain where each entry depends on all previous entries:
+Log0 ──H₀──▶ Log1 ──H₁──▶ Log2 ──H₂──▶ Log3
 
-𝑇
-𝑖
-T
-i
-	​
+7. Tampering Detection
+If an attacker modifies any message in the chain:
+Original:  "UserB: Hi"
+Tampered:  "UserB: Send OTP"
+The recalculated hash Hᵢ' will not match the stored hash Hᵢ, causing a chain break:
+Hᵢ' ≠ Hᵢ  →  ⚠️ Tampering Detected
+Because every subsequent hash depends on the modified entry, the entire downstream chain is invalidated — making silent tampering impossible.
 
- be the timestamp
+8. Application Workflow
+Step 1  →  User sends a message (e.g., "UserA: Hello")
+Step 2  →  System creates a log entry: { message, timestamp, prevHash, hash }
+Step 3  →  New log is appended to the chain
+Step 4  →  Admin triggers verification — all hashes are recomputed
+              ✅ Stored Hash == Recomputed Hash  →  Logs are VALID
+              ❌ Mismatch detected               →  Tampering Detected
 
-𝐻
-𝑖
-−
-1
-H
-i−1
-	​
-
- be the previous hash
-
-The hash of the current log entry is defined as:
-
-𝐻
-𝑖
-=
-𝑆
-𝐻
-𝐴
-256
-(
-𝑀
-𝑖
-  
-∣
-∣
-  
-𝑇
-𝑖
-  
-∣
-∣
-  
-𝐻
-𝑖
-−
-1
-)
-H
-i
-	​
-
-=SHA256(M
-i
-	​
-
-∣∣T
-i
-	​
-
-∣∣H
-i−1
-	​
-
-)
-
-Where:
-
-∣
-∣
-∣∣ represents concatenation
-
-Hash Chain Structure
-𝐻
-0
-=
-𝑆
-𝐻
-𝐴
-256
-(
-𝑀
-0
-∣
-∣
-𝑇
-0
-∣
-∣
-0
-)
-H
-0
-	​
-
-=SHA256(M
-0
-	​
-
-∣∣T
-0
-	​
-
-∣∣0)
-𝐻
-1
-=
-𝑆
-𝐻
-𝐴
-256
-(
-𝑀
-1
-∣
-∣
-𝑇
-1
-∣
-∣
-𝐻
-0
-)
-H
-1
-	​
-
-=SHA256(M
-1
-	​
-
-∣∣T
-1
-	​
-
-∣∣H
-0
-	​
-
-)
-𝐻
-2
-=
-𝑆
-𝐻
-𝐴
-256
-(
-𝑀
-2
-∣
-∣
-𝑇
-2
-∣
-∣
-𝐻
-1
-)
-H
-2
-	​
-
-=SHA256(M
-2
-	​
-
-∣∣T
-2
-	​
-
-∣∣H
-1
-	​
-
-)
-
-Thus we obtain:
-
-Log0 → H0
-Log1 → H1
-Log2 → H2
-Log3 → H3
-
-Each log entry depends on the previous hash, forming a chain.
-
-7️⃣ Tampering Detection Mechanism
-
-If an attacker modifies a message:
-
-Original
-UserB: Hi
-
-to
-
-Tampered
-UserB: Send OTP
-
-The recalculated hash becomes:
-
-𝐻
-𝑖
-′
-≠
-𝐻
-𝑖
-H
-i
-′
-	​
-
-
-=H
-i
-	​
-
-
-This causes:
-
-Hash mismatch
-
-which breaks the entire chain.
-
-The system then reports:
-
-Tampering Detected
-8️⃣ Application Workflow
-Step 1 — User Sends Message
-UserA: Hello
-Step 2 — Log Entry Created
-Message: UserA: Hello
-Timestamp: t1
-PrevHash: H0
-Hash: H1
-Step 3 — New Log Added to Chain
-Log0 → Log1 → Log2
-Step 4 — Admin Verifies Chain
-
-The system recomputes all hashes.
-
-If:
-
-Stored Hash = Recomputed Hash
-
-Logs are valid.
-
-Otherwise:
-
-Tampering Detected
-9️⃣ Installation and Setup
-Step 1 — Clone the Repository
-git clone https://github.com/yourusername/tamper-proof-chat-streamlit.git
-Step 2 — Navigate to Project Directory
+9. Installation & Setup
+Step 1 — Clone the repository:
+bashgit clone https://github.com/yourusername/tamper-proof-chat-streamlit.git
 cd tamper-proof-chat-streamlit
-Step 3 — Install Dependencies
-pip install -r requirements.txt
+Step 2 — Install dependencies:
+bashpip install -r requirements.txt
+Or manually:
+bashpip install streamlit
 
-or manually:
+10. Running the Project
+bashstreamlit run app.py
+```
 
-pip install streamlit
-🔟 Running the Project
-
-Run the Streamlit application:
-
-streamlit run app.py
-Open in Browser
+Then open your browser and navigate to:
+```
 http://localhost:8501
-1️⃣1️⃣ Demonstration Scenario
-Step 1 — Users Send Messages
-UserA: Hello
-UserB: Hi
-Step 2 — Admin Opens Log Panel
 
-Status:
+11. Demonstration Scenario
 
-Logs are VALID
-Step 3 — Admin Simulates Tampering
+Users send messages — e.g., UserA: Hello, UserB: Hi
+Admin opens the log panel — status shows: ✅ Logs are VALID
+Admin simulates tampering — modifies a log entry (e.g., changes "Hi" to "Send OTP")
+System re-verifies the chain — result: ❌ Tampering Detected
 
-Example modification:
 
-UserB: Send OTP
-Step 4 — System Verification
+12. Real-World Applications
+Hash-chained logging is used across many security-critical domains:
+DomainUse CaseBlockchainEnsures immutability of transaction recordsFinancial SystemsProtects banking and transaction audit logsSecurity MonitoringPrevents attackers from hiding their tracesDigital ForensicsMaintains trustworthy evidence recordsAudit & ComplianceEnsures regulatory compliance through verifiable logs
 
-Result:
-
-Tampering Detected
-1️⃣2️⃣ Real-World Applications
-
-Hash-chained logging is used in:
-
-Blockchain Systems
-
-Ensures immutability of transactions.
-
-Financial Systems
-
-Protects banking transaction logs.
-
-Security Monitoring
-
-Prevents attackers from hiding traces.
-
-Digital Forensics
-
-Maintains trustworthy evidence records.
-
-Audit Trails
-
-Ensures regulatory compliance.
-
-1️⃣3️⃣ Future Improvements
-
-Potential enhancements include:
+13. Future Improvements
 
 Real-time multi-user chat using WebSockets
-
-Digital signatures for log authentication
-
+Digital signatures for stronger log authentication
 Distributed logging using blockchain
+Database storage to replace JSON files
+Automated intrusion alerts on tampering detection
+Visual hash chain graph for intuitive exploration
 
-Database storage instead of JSON
-
-Automated intrusion alerts
-
-Visualization of hash chains
-
-👨‍💻 Technologies Used
-
-Python
-
-Streamlit
-
-SHA-256 Hashing
-
-JSON Storage
-
-📜 License
 
 This project is provided for educational and research purposes.
